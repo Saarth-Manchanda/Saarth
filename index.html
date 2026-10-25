@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOUSA // Saarth Manchanda - Python Developer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: JetBrains Mono & Fira Code -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kousa: {
+                            bg: '#0d0e12',
+                            panel: '#13151c',
+                            card: '#181b24',
+                            border: '#262933',
+                            borderLight: '#333745',
+                            orange: '#FF6B00',
+                            orangeHover: '#FF8533',
+                            orangeDim: 'rgba(255, 107, 0, 0.15)',
+                            textMuted: '#8b92a5',
+                            textLight: '#e1e4ed'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            border-radius: 0 !important; /* Enforce ultra-sharp industrial corners */
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0d0e12;
+            color: #e1e4ed;
+            font-family: 'JetBrains Mono', monospace;
+            overflow-x: hidden;
+        }
+
+        /* Canvas fixed background setup */
+        #dotCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Custom scrollbar for sci-fi terminal feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0e12;
+            border-left: 1px solid #262933;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FF6B00;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF8533;
+        }
+
+        /* Glowing text & box utility classes */
+        .glow-orange-text {
+            text-shadow: 0 0 10px rgba(255, 107, 0, 0.5);
+        }
+        .glow-orange-border {
+            box-shadow: 0 0 12px rgba(255, 107, 0, 0.25);
+        }
+        .bracket-btn {
+            position: relative;
+            transition: all 0.15s ease-in-out;
+        }
+        .bracket-btn:hover {
+            background-color: #FF6B00;
+            color: #0d0e12;
+            box-shadow: 0 0 15px rgba(255, 107, 0, 0.4);
+        }
+
+        /* Terminal cursor animation */
+        .terminal-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 18px;
+            background-color: #FF6B00;
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .comment-tag {
+            color: #FF6B00;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="relative min-h-full flex flex-col justify-between selection:bg-kousa-orange selection:text-black">
+
+    <!-- CANVAS BACKGROUND LAYER -->
+    <canvas id="dotCanvas"></canvas>
+
+    <!-- UI WRAPPER OVERLAY -->
+    <div class="relative z-10 flex flex-col min-h-screen">
+
+        <!-- SYSTEM HEADER / NAV -->
+        <header class="sticky top-0 z-50 bg-kousa-bg/90 backdrop-blur-md border-b border-kousa-border px-4 py-3">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+                
+                <!-- BRANDING -->
+                <a href="#" class="flex items-center space-x-2 text-lg font-bold tracking-wider hover:opacity-80 transition">
+                    <span class="bg-kousa-orange text-black px-2 py-0.5 text-xs font-black">KOUSA</span>
+                    <span class="text-kousa-textMuted">//</span>
+                    <span class="text-white tracking-widest">[ SAARTH MANCHANDA ]</span>
+                </a>
+
+                <!-- NAV LINKS -->
+                <nav class="flex flex-wrap items-center justify-center gap-2 sm:gap-6 text-xs sm:text-sm font-semibold tracking-wider">
+                    <a href="#about" class="text-kousa-textMuted hover:text-kousa-orange transition py-1">[ ABOUT ]</a>
+                    <a href="#skills" class="text-kousa-textMuted hover:text-kousa-orange transition py-1">[ SKILLS ]</a>
+                    <a href="#projects" class="text-kousa-textMuted hover:text-kousa-orange transition py-1">[ PROJECTS ]</a>
+                    <a href="#terminal" class="text-kousa-textMuted hover:text-kousa-orange transition py-1">[ CLI ]</a>
+                    <a href="#contact" class="text-kousa-textMuted hover:text-kousa-orange transition py-1">[ CONTACT ]</a>
+                </nav>
+
+                <!-- STATUS INDICATOR -->
+                <div class="hidden lg:flex items-center space-x-2 text-xs border border-kousa-border px-3 py-1 bg-kousa-panel">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-kousa-textMuted font-mono">STATUS: ACTIVE / PUNE ➔ DELHI</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT CONTAINER -->
+        <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16 sm:space-y-24">
+
+            <!-- HERO SECTION -->
+            <section class="pt-8 sm:pt-14 space-y-8 border-b border-kousa-border pb-16">
+                <!-- Retro Tagline Header -->
+                <div class="inline-flex items-center gap-2 border border-kousa-border bg-kousa-panel/80 px-3 py-1 text-xs sm:text-sm text-kousa-orange font-mono">
+                    <i class="fa-solid me-1 fa-terminal"></i>
+                    <span>Ctrl + Alt + Defeat the impossible.</span>
+                </div>
+
+                <!-- Big Headline -->
+                <div class="space-y-4">
+                    <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-tight">
+                        PYTHON DEVELOPER <br>
+                        <span class="text-kousa-orange glow-orange-text">& AUTOMATION ARCHITECT</span>
+                    </h1>
+                    <p class="text-base sm:text-xl text-kousa-textMuted max-w-3xl leading-relaxed font-light">
+                        I'm a Python developer from Pune, based in Delhi, who builds Discord bots, web apps, and automation tools. I turn ideas into tools people actually use.
+                    </p>
+                </div>
+
+                <!-- Action CTAs -->
+                <div class="flex flex-wrap gap-4 pt-2">
+                    <a href="#projects" class="bracket-btn px-6 py-3 border-2 border-kousa-orange text-kousa-orange font-bold text-sm uppercase tracking-wider bg-kousa-orangeDim">
+                        [ VIEW PROJECTS ]
+                    </a>
+                    <a href="#about" class="bracket-btn px-6 py-3 border border-kousa-borderLight text-kousa-textLight font-semibold text-sm uppercase tracking-wider bg-kousa-panel">
+                        [ ABOUT ME ]
+                    </a>
+                    <a href="#contact" class="bracket-btn px-6 py-3 border border-kousa-border text-kousa-textMuted font-semibold text-sm uppercase tracking-wider hover:border-kousa-orange">
+                        [ CONTACT ME ]
+                    </a>
+                </div>
+
+                <!-- Metrics Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6">
+                    <div class="bg-kousa-panel border border-kousa-border p-4 hover:border-kousa-orange transition">
+                        <div class="text-2xl sm:text-3xl font-extrabold text-white font-mono">3+ YEARS</div>
+                        <div class="text-xs text-kousa-textMuted uppercase tracking-wider mt-1">// Coding & Building</div>
+                    </div>
+                    <div class="bg-kousa-panel border border-kousa-border p-4 hover:border-kousa-orange transition">
+                        <div class="text-2xl sm:text-3xl font-extrabold text-white font-mono">7+ IDEAS</div>
+                        <div class="text-xs text-kousa-textMuted uppercase tracking-wider mt-1">// Turned to Reality</div>
+                    </div>
+                    <div class="bg-kousa-panel border border-kousa-border p-4 hover:border-kousa-orange transition">
+                        <div class="text-2xl sm:text-3xl font-extrabold text-kousa-orange font-mono">100%</div>
+                        <div class="text-xs text-kousa-textMuted uppercase tracking-wider mt-1">// Coffee-to-Code Conversion</div>
+                    </div>
+                    <div class="bg-kousa-panel border border-kousa-border p-4 hover:border-kousa-orange transition">
+                        <div class="text-2xl sm:text-3xl font-extrabold text-white font-mono">SOON...</div>
+                        <div class="text-xs text-kousa-textMuted uppercase tracking-wider mt-1">// Next Big Project Baking</div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ABOUT ME SECTION -->
+            <section id="about" class="space-y-6 scroll-mt-24">
+                <div class="flex items-center space-x-3">
+                    <span class="comment-tag text-xl">//</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider text-white">01. ABOUT ME</h2>
+                    <div class="flex-grow border-b border-kousa-border"></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Bio Narrative Paragraphs -->
+                    <div class="lg:col-span-2 space-y-6 bg-kousa-panel border border-kousa-border p-6 sm:p-8">
+                        <div class="space-y-4 text-kousa-textLight text-sm sm:text-base leading-relaxed">
+                            <p class="border-l-2 border-kousa-orange pl-4">
+                                <span class="text-kousa-orange font-bold">// 01. ORIGIN & DRIVE:</span><br>
+                                I started coding through a school & competition project, and I’ve kept at it because I enjoy learning new tools, solving problems step-by-step, and building things for fun.
+                            </p>
+                            <p class="border-l-2 border-kousa-borderLight pl-4">
+                                <span class="text-kousa-textMuted font-bold">// 02. WHAT I BUILD:</span><br>
+                                I enjoy building Discord bots, web apps with interactive frontends, and automation scripts. I like working across all three and using whichever fits the problem best.
+                            </p>
+                            <p class="border-l-2 border-kousa-borderLight pl-4">
+                                <span class="text-kousa-textMuted font-bold">// 03. OBJECTIVE & DISCOVERY:</span><br>
+                                I’m open to internships, freelance work, full-time roles, and open-source collaborations.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Side System Notice & Bio Cards -->
+                    <div class="space-y-6">
+                        <!-- Location & Info Card -->
+                        <div class="bg-kousa-card border border-kousa-border p-5 space-y-3">
+                            <div class="text-xs font-bold text-kousa-orange uppercase tracking-widest">// ARCHIVE DETAILS</div>
+                            <ul class="text-xs space-y-2 text-kousa-textMuted">
+                                <li class="flex justify-between border-b border-kousa-border pb-1">
+                                    <span>ORIGIN:</span>
+                                    <span class="text-white font-mono">PUNE, INDIA</span>
+                                </li>
+                                <li class="flex justify-between border-b border-kousa-border pb-1">
+                                    <span>BASE:</span>
+                                    <span class="text-white font-mono">DELHI, INDIA</span>
+                                </li>
+                                <li class="flex justify-between border-b border-kousa-border pb-1">
+                                    <span>PRIMARY LANG:</span>
+                                    <span class="text-kousa-orange font-mono">PYTHON 3.x</span>
+                                </li>
+                                <li class="flex justify-between border-b border-kousa-border pb-1">
+                                    <span>ALIAS:</span>
+                                    <span class="text-white font-mono">KOUSA</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Humorous Dev Notice -->
+                        <div class="bg-kousa-panel border border-dashed border-kousa-orange/50 p-5 space-y-2">
+                            <div class="text-xs font-bold text-kousa-orange flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                SYSTEM NOTICE
+                            </div>
+                            <p class="text-xs text-kousa-textMuted leading-relaxed italic">
+                                "// May over-optimize simple scripts. Will debug for food or interesting API access."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- CORE SKILLS & TECH STACK -->
+            <section id="skills" class="space-y-6 scroll-mt-24">
+                <div class="flex items-center space-x-3">
+                    <span class="comment-tag text-xl">//</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider text-white">02. CORE SKILLS & TECH STACK</h2>
+                    <div class="flex-grow border-b border-kousa-border"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <!-- FRONTEND -->
+                    <div class="bg-kousa-panel border border-kousa-border p-6 hover:border-kousa-orange transition group">
+                        <div class="flex items-center space-x-2 border-b border-kousa-border pb-3 mb-4">
+                            <i class="fa-solid fa-code text-kousa-orange"></i>
+                            <h3 class="font-bold text-white tracking-wider text-sm">// FRONTEND</h3>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">HTML5</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">CSS3</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Vanilla JavaScript</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">DOM Manipulation</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">HTML Canvas API</span>
+                        </div>
+                    </div>
+
+                    <!-- BACKEND -->
+                    <div class="bg-kousa-panel border border-kousa-border p-6 hover:border-kousa-orange transition group">
+                        <div class="flex items-center space-x-2 border-b border-kousa-border pb-3 mb-4">
+                            <i class="fa-brands fa-python text-kousa-orange"></i>
+                            <h3 class="font-bold text-white tracking-wider text-sm">// BACKEND</h3>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-orange/40 text-xs text-kousa-orange font-bold font-mono">Python 3.x</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Flask</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">FastAPI</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">REST APIs</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Automation Scripts</span>
+                        </div>
+                    </div>
+
+                    <!-- DATABASES & STORAGE -->
+                    <div class="bg-kousa-panel border border-kousa-border p-6 hover:border-kousa-orange transition group">
+                        <div class="flex items-center space-x-2 border-b border-kousa-border pb-3 mb-4">
+                            <i class="fa-solid fa-database text-kousa-orange"></i>
+                            <h3 class="font-bold text-white tracking-wider text-sm">// DATABASES & STORAGE</h3>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">PostgreSQL</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">MySQL</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">SQLite</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Relational Data Modeling</span>
+                        </div>
+                    </div>
+
+                    <!-- DEVOPS & UTILITIES -->
+                    <div class="bg-kousa-panel border border-kousa-border p-6 hover:border-kousa-orange transition group">
+                        <div class="flex items-center space-x-2 border-b border-kousa-border pb-3 mb-4">
+                            <i class="fa-solid fa-terminal text-kousa-orange"></i>
+                            <h3 class="font-bold text-white tracking-wider text-sm">// DEVOPS & DEPLOYMENT</h3>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Git & GitHub</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Vercel</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Netlify</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Linux CLI</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Windows Scripting</span>
+                        </div>
+                    </div>
+
+                    <!-- SPECIALIZATIONS -->
+                    <div class="bg-kousa-panel border border-kousa-border p-6 hover:border-kousa-orange transition group lg:col-span-2">
+                        <div class="flex items-center space-x-2 border-b border-kousa-border pb-3 mb-4">
+                            <i class="fa-solid fa-gears text-kousa-orange"></i>
+                            <h3 class="font-bold text-white tracking-wider text-sm">// SPECIALIZATIONS & DOMAINS</h3>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-kousa-orangeDim border border-kousa-orange text-xs text-kousa-orange font-bold font-mono">Discord API & Bot Engineering</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Web Scraping (BeautifulSoup / Requests)</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Workflow Automation</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Industrial UI/UX Design</span>
+                            <span class="px-3 py-1 bg-kousa-card border border-kousa-border text-xs text-kousa-textLight font-mono">Rapid Prototyping</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- FEATURED PROJECTS SECTION -->
+            <section id="projects" class="space-y-6 scroll-mt-24">
+                <div class="flex items-center space-x-3">
+                    <span class="comment-tag text-xl">//</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider text-white">03. FEATURED PROJECTS</h2>
+                    <div class="flex-grow border-b border-kousa-border"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <!-- PROJECT 1: PORTANOTE (Highlighted Main Project) -->
+                    <div class="bg-kousa-panel border-2 border-kousa-orange p-6 flex flex-col justify-between hover:glow-orange-border transition relative group">
+                        <div class="absolute -top-3 right-4 bg-kousa-orange text-black px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
+                            FLAGSHIP REPO
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-mono text-kousa-orange">// REPO_ID: 01</span>
+                                <i class="fa-solid fa-sticky-note text-kousa-orange text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-black text-white group-hover:text-kousa-orange transition">PORTANOTE</h3>
+                                <p class="text-xs font-semibold text-kousa-orange mt-1">
+                                    "A lightweight notepad for sharing notes through simple URLs"
+                                </p>
+                            </div>
+                            <p class="text-xs text-kousa-textMuted leading-relaxed">
+                                A lightweight, high-performance, and beautifully designed web-based notepad built with Python and Flask. Users can quickly paste, edit, and share notes via simple, unique URLs without registration or authentication.
+                            </p>
+                            <div class="flex flex-wrap gap-1.5 pt-2">
+                                <span class="px-2 py-0.5 bg-black border border-kousa-border text-[11px] text-kousa-orange font-mono">Python</span>
+                                <span class="px-2 py-0.5 bg-black border border-kousa-border text-[11px] text-white font-mono">Flask</span>
+                                <span class="px-2 py-0.5 bg-black border border-kousa-border text-[11px] text-white font-mono">Web App</span>
+                                <span class="px-2 py-0.5 bg-black border border-kousa-border text-[11px] text-white font-mono">URL Sharing</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 mt-4 border-t border-kousa-border flex items-center justify-between">
+                            <a href="https://github.com/Saarth-Manchanda/Portanote" target="_blank" rel="noopener noreferrer" class="bracket-btn text-xs font-bold px-4 py-2 border border-kousa-orange text-kousa-orange bg-kousa-orangeDim inline-flex items-center gap-2">
+                                <i class="fa-brands fa-github"></i>
+                                <span>[ VIEW REPO ]</span>
+                            </a>
+                            <span class="text-[10px] text-kousa-textMuted font-mono">PUBLIC</span>
+                        </div>
+                    </div>
+
+                    <!-- PROJECT 2: DISCORD AUTOMATION BOT FRAMEWORK -->
+                    <div class="bg-kousa-panel border border-kousa-border p-6 flex flex-col justify-between hover:border-kousa-orange transition group">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-mono text-kousa-textMuted">// REPO_ID: 02</span>
+                                <i class="fa-brands fa-discord text-kousa-orange text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white group-hover:text-kousa-orange transition">DISCORD AUTOMATION BOT</h3>
+                                <p class="text-xs font-semibold text-kousa-textMuted mt-1">
+                                    "Custom Discord bots for community & workflows"
+                                </p>
+                            </div>
+                            <p class="text-xs text-kousa-textMuted leading-relaxed">
+                                Asynchronous Python bot framework built with discord.py, featuring modular command architecture, dynamic permissions management, and custom external API integration for automated servers.
+                            </p>
+                            <div class="flex flex-wrap gap-1.5 pt-2">
+                                <span class="px-2 py-0.5 bg-black border border-kousa-border text-[11px] text-kousa-orange font-mono">Python</span>
+                                <span class="px-2 py-0.5 bg-black border border-kousa-border text-[11px] text-white font-mono">Discord API</span>
+                                <span class="px-2 py-0.5 bg-black border border-kousa-border text-[11px] text-white font-mono">Asyncio</span>
+                                <span class="px-2 py-0.5 bg-black border border-kousa-border text-[11px] text-white font-mono">Automation</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 mt-4 border-t border-kousa-border flex items-center justify-between">
+                            <a href="https://github.com/Saarth-Manchanda" target="_blank" rel="noopener noreferrer" class="bracket-btn text-xs font-bold px-4 py-2 border border-kousa-borderLight text-kousa-textLight inline-flex items-center gap-2">
+                                <i class="fa-brands fa-github"></i>
+                                <span>[ EXPLORE GITHUB ]</span>
+                            </a>
+                            <span class="text-[10px] text-kousa-textMuted font-mono">FRAMEWORK</span>
+                        </div>
+                    </div>
+
+                    <!-- PROJECT 3: WEB SCRAPER & DATA PIPELINE -->
+                    <div class="bg-kousa-panel border border-kousa-border p-6 flex flex-col justify-between hover:border-kousa-orange transition group">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-mono text-kousa-textMuted">// REPO_ID: 03</span>
+                                <i class="fa-solid fa-spider text-kousa-orange text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white group-hover:text-kousa-orange transition">WEB SCRAPER & PIPELINE</h3>
+                                <p class="text-xs font-semibold text-kousa-textMuted mt-1">
+                                    "Automated data extractor for web intelligence"
+                                </p>
+                            </div>
+                            <p class="text-xs text-kousa-textMuted leading-relaxed">
+                                Custom automation script built with Python to scrape, structure, and store dynamic web data seamlessly with rate-limit protection and clean tabular output formats.
+                            </p>
+                            <div class="flex flex-wrap gap-1.5 pt-2">
+                                <span class="px-2 py-0.5 bg-black border border-kousa-border text-[11px] text-kousa-orange font-mono">Python</span>
+                                <span class="px-2 py-0.5 bg-black border border-kousa-border text-[11px] text-white font-mono">BeautifulSoup</span>
+                                <span class="px-2 py-0.5 bg-black border border-kousa-border text-[11px] text-white font-mono">Automation</span>
+                                <span class="px-2 py-0.5 bg-black border border-kousa-border text-[11px] text-white font-mono">SQL</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 mt-4 border-t border-kousa-border flex items-center justify-between">
+                            <a href="https://github.com/Saarth-Manchanda" target="_blank" rel="noopener noreferrer" class="bracket-btn text-xs font-bold px-4 py-2 border border-kousa-borderLight text-kousa-textLight inline-flex items-center gap-2">
+                                <i class="fa-brands fa-github"></i>
+                                <span>[ EXPLORE GITHUB ]</span>
+                            </a>
+                            <span class="text-[10px] text-kousa-textMuted font-mono">SCRIPT</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- INTERACTIVE RETRO TERMINAL (CLI PORTAL) -->
+            <section id="terminal" class="space-y-6 scroll-mt-24">
+                <div class="flex items-center space-x-3">
+                    <span class="comment-tag text-xl">//</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider text-white">04. INTERACTIVE RETRO CLI TERMINAL</h2>
+                    <div class="flex-grow border-b border-kousa-border"></div>
+                </div>
+
+                <!-- Terminal Box Window -->
+                <div class="bg-black border-2 border-kousa-border font-mono shadow-2xl overflow-hidden">
+                    <!-- Terminal Top Header Bar -->
+                    <div class="bg-kousa-panel border-b border-kousa-border px-4 py-2 flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 bg-red-500/80 inline-block"></span>
+                            <span class="w-3 h-3 bg-yellow-500/80 inline-block"></span>
+                            <span class="w-3 h-3 bg-green-500/80 inline-block"></span>
+                            <span class="text-kousa-textMuted ml-2 font-bold">// KOUSA-SHELL v2.6.0 (tty1)</span>
+                        </div>
+                        <div class="text-kousa-textMuted hidden sm:block">
+                            TYPE <span class="text-kousa-orange">help</span> FOR AVAILABLE COMMANDS
+                        </div>
+                    </div>
+
+                    <!-- Terminal Output Scroll Area -->
+                    <div id="terminalOutput" class="p-4 sm:p-6 h-64 sm:h-80 overflow-y-auto space-y-3 text-xs sm:text-sm">
+                        <div class="text-kousa-textMuted">
+                            Welcome to Saarth Manchanda's interactive CLI. System initialized successfully.<br>
+                            Type <span class="text-kousa-orange font-bold">help</span> to view available system commands.
+                        </div>
+                    </div>
+
+                    <!-- Terminal Prompt Input -->
+                    <div class="border-t border-kousa-border bg-kousa-panel/60 p-3 flex items-center space-x-2">
+                        <span class="text-kousa-orange font-bold text-xs sm:text-sm">saarth@kousa:~$</span>
+                        <input id="terminalInput" type="text" autocomplete="off" spellcheck="false" 
+                            class="flex-grow bg-transparent text-white focus:outline-none font-mono text-xs sm:text-sm"
+                            placeholder="Type command (e.g. bio, skills, portanote, joke)...">
+                        <button id="terminalSubmit" class="text-xs bg-kousa-orange text-black font-bold px-3 py-1 hover:bg-kousa-orangeHover">
+                            EXECUTE
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- CONTACT & LINKS SECTION -->
+            <section id="contact" class="space-y-6 scroll-mt-24">
+                <div class="flex items-center space-x-3">
+                    <span class="comment-tag text-xl">//</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider text-white">05. GET IN TOUCH</h2>
+                    <div class="flex-grow border-b border-kousa-border"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Direct Reach Cards -->
+                    <div class="space-y-4">
+                        <p class="text-sm text-kousa-textMuted">
+                            Whether you want to discuss an open-source collaboration, hire for freelance/internships/full-time work, or just talk tech and Python—reach out on any channel below!
+                        </p>
+
+                        <!-- EMAIL COPY CARD -->
+                        <div class="bg-kousa-panel border border-kousa-border p-4 flex items-center justify-between hover:border-kousa-orange transition">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-envelope text-kousa-orange text-xl"></i>
+                                <div>
+                                    <div class="text-xs text-kousa-textMuted font-mono">// EMAIL ADDRESS</div>
+                                    <div id="emailText" class="text-sm font-bold text-white font-mono">saarth.munch@gmail.com</div>
+                                </div>
+                            </div>
+                            <button id="copyEmailBtn" class="bracket-btn text-xs px-3 py-2 border border-kousa-border text-kousa-orange font-bold">
+                                [ COPY ]
+                            </button>
+                        </div>
+
+                        <!-- GITHUB LINK -->
+                        <a href="https://github.com/Saarth-Manchanda" target="_blank" rel="noopener noreferrer" 
+                           class="bg-kousa-panel border border-kousa-border p-4 flex items-center justify-between hover:border-kousa-orange transition group">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-brands fa-github text-white text-xl group-hover:text-kousa-orange"></i>
+                                <div>
+                                    <div class="text-xs text-kousa-textMuted font-mono">// GITHUB PROFILE</div>
+                                    <div class="text-sm font-bold text-white font-mono">github.com/Saarth-Manchanda</div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-kousa-orange font-bold">[ OPEN ↗ ]</span>
+                        </a>
+
+                        <!-- LINKEDIN LINK -->
+                        <a href="https://www.linkedin.com/in/saarth-manchanda-88303b443/" target="_blank" rel="noopener noreferrer" 
+                           class="bg-kousa-panel border border-kousa-border p-4 flex items-center justify-between hover:border-kousa-orange transition group">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-brands fa-linkedin text-blue-400 text-xl group-hover:text-kousa-orange"></i>
+                                <div>
+                                    <div class="text-xs text-kousa-textMuted font-mono">// LINKEDIN</div>
+                                    <div class="text-sm font-bold text-white font-mono">saarth-manchanda</div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-kousa-orange font-bold">[ OPEN ↗ ]</span>
+                        </a>
+
+                        <!-- REDDIT LINK -->
+                        <a href="https://reddit.com/user/Saarth-Manchanda" target="_blank" rel="noopener noreferrer" 
+                           class="bg-kousa-panel border border-kousa-border p-4 flex items-center justify-between hover:border-kousa-orange transition group">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-brands fa-reddit-alien text-orange-500 text-xl group-hover:text-kousa-orange"></i>
+                                <div>
+                                    <div class="text-xs text-kousa-textMuted font-mono">// REDDIT</div>
+                                    <div class="text-sm font-bold text-white font-mono">u/Saarth-Manchanda</div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-kousa-orange font-bold">[ OPEN ↗ ]</span>
+                        </a>
+                    </div>
+
+                    <!-- QUICK SIMULATED DISPATCH FORM -->
+                    <div class="bg-kousa-panel border border-kousa-border p-6 space-y-4">
+                        <div class="border-b border-kousa-border pb-2">
+                            <h3 class="font-bold text-white text-sm uppercase tracking-wider">// TRANSMIT QUICK MESSAGE</h3>
+                            <p class="text-xs text-kousa-textMuted">Direct web signal simulation</p>
+                        </div>
+
+                        <form id="contactForm" onsubmit="event.preventDefault(); simulateSendMessage();" class="space-y-4 text-xs">
+                            <div>
+                                <label class="block text-kousa-textMuted mb-1 font-mono">// YOUR NAME / HANDLER</label>
+                                <input type="text" required placeholder="e.g. Alex" class="w-full bg-black border border-kousa-border p-2.5 text-white focus:outline-none focus:border-kousa-orange font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-kousa-textMuted mb-1 font-mono">// YOUR EMAIL</label>
+                                <input type="email" required placeholder="alex@domain.com" class="w-full bg-black border border-kousa-border p-2.5 text-white focus:outline-none focus:border-kousa-orange font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-kousa-textMuted mb-1 font-mono">// TRANSMISSION CONTENT</label>
+                                <textarea rows="3" required placeholder="Describe project or inquiry..." class="w-full bg-black border border-kousa-border p-2.5 text-white focus:outline-none focus:border-kousa-orange font-mono"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bracket-btn py-3 border border-kousa-orange text-kousa-orange font-bold text-xs bg-kousa-orangeDim uppercase tracking-wider">
+                                [ SEND SIGNAL ]
+                            </button>
+                            <div id="formStatus" class="hidden text-center text-xs font-mono text-emerald-400">
+                                SIGNAL TRANSMITTED SUCCESSFULLY! PREPARING MAIL CLIENT...
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FOOTER SECTION -->
+        <footer class="mt-20 border-t border-kousa-border bg-black py-8 px-4 text-xs font-mono">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="text-kousa-textMuted text-center sm:text-left">
+                    DESIGNED WITH BLOCKY PRECISION & MONOSPACE LOVE // KOUSA © 2026
+                </div>
+                <div>
+                    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="bracket-btn px-4 py-2 border border-kousa-border text-kousa-orange font-bold hover:border-kousa-orange">
+                        BACK TO TOP [ ▲ ]
+                    </button>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // -------------------------------------------------------------
+        // 1. INTERACTIVE DOT MATRIX CANVAS (CRITICALLY DAMPED PHYSICS)
+        // -------------------------------------------------------------
+        const canvas = document.getElementById('dotCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        // Repulsion physics parameters
+        const DOT_SPACING = 30; // Grid resolution
+        const DOT_RADIUS = 1.5;
+        const REPEL_RADIUS = 120; // Mouse influence radius
+        const STIFFNESS = 0.08;   // Critically damped spring back
+        const DAMPING = 0.75;     // Friction dampener (prevents springy oscillation)
+
+        let dots = [];
+        let mouse = { x: -9999, y: -9999, targetX: -9999, targetY: -9999 };
+
+        class Dot {
+            constructor(x, y) {
+                this.baseX = x;
+                this.baseY = y;
+                this.x = x;
+                this.y = y;
+                this.vx = 0;
+                this.vy = 0;
+            }
+
+            update() {
+                // Distance to cursor
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                // Repulsion force away from cursor
+                if (dist < REPEL_RADIUS && dist > 0) {
+                    const force = (1 - dist / REPEL_RADIUS) * 6;
+                    const angle = Math.atan2(dy, dx);
+                    this.vx -= Math.cos(angle) * force;
+                    this.vy -= Math.sin(angle) * force;
+                }
+
+                // Critically damped return to baseline position
+                const homeDx = this.baseX - this.x;
+                const homeDy = this.baseY - this.y;
+
+                this.vx += homeDx * STIFFNESS;
+                this.vy += homeDy * STIFFNESS;
+
+                this.vx *= DAMPING;
+                this.vy *= DAMPING;
+
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+
+            draw() {
+                ctx.fillStyle = '#2a2d3d';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, DOT_RADIUS, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initCanvasDots() {
+            dots = [];
+            const cols = Math.ceil(width / DOT_SPACING);
+            const rows = Math.ceil(height / DOT_SPACING);
+
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    const x = i * DOT_SPACING + DOT_SPACING / 2;
+                    const y = j * DOT_SPACING + DOT_SPACING / 2;
+                    dots.push(new Dot(x, y));
+                }
+            }
+        }
+
+        function animateDots() {
+            ctx.clearRect(0, 0, width, height);
+
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].update();
+                dots[i].draw();
+            }
+
+            requestAnimationFrame(animateDots);
+        }
+
+        // Mouse & Touch events
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        window.addEventListener('mouseleave', () => {
+            mouse.x = -9999;
+            mouse.y = -9999;
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                mouse.x = e.touches[0].clientX;
+                mouse.y = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initCanvasDots();
+        });
+
+        // Initialize grid & start frame loop
+        initCanvasDots();
+        animateDots();
+
+
+        // -------------------------------------------------------------
+        // 2. RETRO CLI TERMINAL INTERACTION
+        // -------------------------------------------------------------
+        const terminalInput = document.getElementById('terminalInput');
+        const terminalOutput = document.getElementById('terminalOutput');
+        const terminalSubmit = document.getElementById('terminalSubmit');
+
+        const commands = {
+            'help': `Available System Commands:<br>
+  - <span class="text-kousa-orange">bio</span>        : Who is Saarth Manchanda?<br>
+  - <span class="text-kousa-orange">skills</span>     : Core programming skills & stack<br>
+  - <span class="text-kousa-orange">projects</span>   : Featured repository highlights<br>
+  - <span class="text-kousa-orange">portanote</span>  : Details on PortaNote flagship project<br>
+  - <span class="text-kousa-orange">contact</span>   : Socials & communication links<br>
+  - <span class="text-kousa-orange">joke</span>      : Fetch random developer humor<br>
+  - <span class="text-kousa-orange">sudo</span>      : Execute root administrative access<br>
+  - <span class="text-kousa-orange">clear</span>     : Wipe command terminal screen`,
+            
+            'bio': `SAARTH MANCHANDA // Python Developer from Pune, based in Delhi.<br>
+  Started coding via school competitions and kept going to build fun tools, bots, and high-speed web apps.`,
+
+            'skills': `FRONTEND  : HTML5, CSS3, JavaScript, Canvas API<br>
+BACKEND   : Python, Flask, FastAPI, Automation<br>
+DATABASES : PostgreSQL, MySQL<br>
+UTILITIES : Git, GitHub, Linux/Windows Scripting, Vercel, Netlify`,
+
+            'projects': `1. PORTANOTE - Simple URL-based note sharing notepad app.<br>
+2. DISCORD BOT FRAMEWORK - Asynchronous bot for server workflow.<br>
+3. WEB SCRAPER - Automated Python data extraction engine.`,
+
+            'portanote': `PORTANOTE // Flagship Project<br>
+  Tagline: A lightweight notepad for sharing notes through simple URLs.<br>
+  Tech Stack: Python, Flask, HTML/CSS.<br>
+  GitHub: <a href="https://github.com/Saarth-Manchanda/Portanote" target="_blank" class="text-kousa-orange underline">https://github.com/Saarth-Manchanda/Portanote</a>`,
+
+            'contact': `Email: saarth.munch@gmail.com<br>
+GitHub: github.com/Saarth-Manchanda<br>
+LinkedIn: linkedin.com/in/saarth-manchanda-88303b443/<br>
+Reddit: u/Saarth-Manchanda`,
+
+            'joke': () => {
+                const jokes = [
+                    "Why do Python programmers prefer dark mode? Because light attracts bugs!",
+                    "There are 10 types of people in the world: those who understand binary, and those who don't.",
+                    "A Python script walks into a bar: 'Import double_shot_espresso'.",
+                    "Why was the JavaScript developer sad? Because he didn't Null how to React."
+                ];
+                return jokes[Math.floor(Math.random() * jokes.length)];
+            },
+
+            'sudo': 'Nice try! Permission denied: User KOUSA is not in the sudoers file. This incident will be reported.'
+        };
+
+        function processCommand() {
+            const rawCmd = terminalInput.value.trim();
+            if (!rawCmd) return;
+
+            const cmd = rawCmd.toLowerCase();
+            
+            // Print user command line
+            const userLine = document.createElement('div');
+            userLine.className = 'text-white font-bold';
+            userLine.innerHTML = `<span class="text-kousa-orange">saarth@kousa:~$</span> ${rawCmd}`;
+            terminalOutput.appendChild(userLine);
+
+            if (cmd === 'clear') {
+                terminalOutput.innerHTML = '';
+            } else if (commands[cmd]) {
+                const responseLine = document.createElement('div');
+                responseLine.className = 'text-kousa-textMuted pl-4 border-l border-kousa-orange/40 my-1';
+                responseLine.innerHTML = typeof commands[cmd] === 'function' ? commands[cmd]() : commands[cmd];
+                terminalOutput.appendChild(responseLine);
+            } else {
+                const errorLine = document.createElement('div');
+                errorLine.className = 'text-red-400 pl-4 border-l border-red-500/40 my-1';
+                errorLine.innerHTML = `Command not recognized: '${rawCmd}'. Type <span class="text-kousa-orange">help</span> for command list.`;
+                terminalOutput.appendChild(errorLine);
+            }
+
+            terminalInput.value = '';
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        terminalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') processCommand();
+        });
+        terminalSubmit.addEventListener('click', processCommand);
+
+
+        // -------------------------------------------------------------
+        // 3. COPY EMAIL FUNCTIONALITY
+        // -------------------------------------------------------------
+        const copyEmailBtn = document.getElementById('copyEmailBtn');
+        const emailText = document.getElementById('emailText').innerText;
+
+        copyEmailBtn.addEventListener('click', () => {
+            const tempInput = document.createElement('input');
+            tempInput.value = emailText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            const origText = copyEmailBtn.innerText;
+            copyEmailBtn.innerText = '[ COPIED! ]';
+            copyEmailBtn.classList.add('bg-kousa-orange', 'text-black');
+            
+            setTimeout(() => {
+                copyEmailBtn.innerText = origText;
+                copyEmailBtn.classList.remove('bg-kousa-orange', 'text-black');
+            }, 2000);
+        });
+
+
+        // -------------------------------------------------------------
+        // 4. CONTACT FORM SIMULATION
+        // -------------------------------------------------------------
+        function simulateSendMessage() {
+            const formStatus = document.getElementById('formStatus');
+            formStatus.classList.remove('hidden');
+
+            setTimeout(() => {
+                window.location.href = `mailto:saarth.munch@gmail.com?subject=Contact%20Inquiry%20via%20Portfolio`;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
